@@ -19,30 +19,30 @@ class Usuario{
 	
 	public function getDeslogin(){
 		
-		return $this->idusuario;
+		return $this->deslogin;
 	}
 	public function setDeslogin($value){
-		$this->idusuario = $value;
+		$this->deslogin = $value;
 		
 		
 	}
 	
 	public function getDesenha(){
 		
-		return $this->idusuario;
+		return $this->desenha;
 	}
 	public function setDesenha($value){
-		$this->idusuario = $value;
+		$this->desenha = $value;
 		
 		
 	}
 	
 	public function getDtcadastro(){
 		
-		return $this->idusuario;
+		return $this->dtcadastro;
 	}
 	public function setDtcadastro($value){
-		$this->idusuario = $value;
+		$this->dtcadastro = $value;
 		
 		
 	}
@@ -55,13 +55,9 @@ class Usuario{
 		
 		if(isset($results)){
 			
-			$row = $results[0];
+			$this->setData($results[0]);
 			
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDesenha($row['desenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
-		}
+			}
 		
 	}
 	
@@ -92,17 +88,81 @@ class Usuario{
 		
 		if(isset($results)){
 			
-			$row = $results[0];
+						
+			$this->setData($results[0]);
 			
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDesenha($row['desenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
-		}else{
+			}else{
 			throw new Exception("Login e/ou senha inválidos.");
 			
 		}
 		
+	}
+	
+	public function setData($data){
+		
+		$this->setIdusuario($data['idusuario']);
+		$this->setDeslogin($data['deslogin']);
+		$this->setDesenha($data['desenha']);
+		$this->setDtcadastro(new DateTime($data['dtcadastro']));
+	
+		
+		
+		
+	}
+	public function insert(){
+		
+		$sql = new Sql();
+		
+		$results = $sql->select("CALL sp_usuarios_insert(:LOGIN, :PASSWORD)", array(
+		':LOGIN'=>$this->getDeslogin(),
+		':PASSWORD'=>$this->getDesenha()
+		
+		
+		));
+		if(count($results) > 0){
+			$this->setData($results[0]);
+			
+		}
+		
+		
+	}
+	
+	public function update($login, $password){
+		
+		$this->setDeslogin($login);
+		$this->setDesenha($password);
+		
+		$sql = new Sql();
+		
+		$sql->query("UPDATE tb_usuarios SET deslogin = :LOGIN, desenha = :PASSWORD WHERE idusuario = :ID", array(
+		':LOGIN'=>$this->getDeslogin(),
+		':PASSWORD'=>$this->getDesenha(),
+		':ID'=>$this->getIdusuario()
+		
+		));
+		
+	}
+	
+	public function delete(){
+		
+		$sql = new Sql();
+		
+		$sql->query("DELETE FROM tb_usuarios WHERE idusuario = :ID", array(
+		':ID'=>$this->getIdusuario()
+		));
+		
+		$this->setIdusuario(0);
+		$this->setDeslogin("");
+		$this->setDesenha("");
+		$this->setDtcadastro(new DateTime());
+		
+	}
+	
+	
+	public function __construct($login = "", $password = ""){
+		
+	$this->setDeslogin($login);
+    $this->setDesenha($password);	
 	}
 	
 	public function __toString(){
